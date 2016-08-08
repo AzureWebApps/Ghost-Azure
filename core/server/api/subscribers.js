@@ -288,7 +288,7 @@ subscribers = {
 
             return serverUtils.readCSV({
                 path: filePath,
-                columnsToExtract: [{name: 'email', lookup: /email/i}]
+                columnsToExtract: ['email']
             }).then(function (result) {
                 return Promise.all(result.map(function (entry) {
                     return subscribers.add(

@@ -9,9 +9,8 @@ function loadTagsForEachPost(posts) {
     if (!posts) {
         return [];
     }
-
     return posts.mapThen(function loadTagsForPost(post) {
-        return post.load(['tags'], modelOptions);
+        return post.load(['tags']);
     });
 }
 

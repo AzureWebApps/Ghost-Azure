@@ -18,13 +18,6 @@ utils = {
         }
 
         return null;
-    },
-    parseVisibility: function parseVisibility(options) {
-        if (!options.hash.visibility) {
-            return ['public'];
-        }
-
-        return _.map(options.hash.visibility.split(','), _.trim);
     }
 };
 

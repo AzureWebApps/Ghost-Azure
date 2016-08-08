@@ -51,37 +51,6 @@ function updateCheckError(error) {
     );
 }
 
-/**
- * If the custom message is intended for current version, create and store a custom notification.
- * @param {Object} message {id: uuid, version: '0.9.x', content: '' }
- * @return {*|Promise}
- */
-function createCustomNotification(message) {
-    if (!semver.satisfies(currentVersion, message.version)) {
-        return Promise.resolve();
-    }
-
-    var notification = {
-        type: 'info',
-        location: 'top',
-        custom: true,
-        uuid: message.id,
-        dismissible: true,
-        message: message.content
-    },
-    getAllNotifications = api.notifications.browse({context: {internal: true}}),
-    getSeenNotifications = api.settings.read(_.extend({key: 'seenNotifications'}, internal));
-
-    return Promise.join(getAllNotifications, getSeenNotifications, function joined(all, seen) {
-        var isSeen      = _.includes(JSON.parse(seen.settings[0].value || []), notification.uuid),
-            isDuplicate = _.some(all.notifications, {message: notification.message});
-
-        if (!isSeen && !isDuplicate) {
-            return api.notifications.add({notifications: [notification]}, {context: {internal: true}});
-        }
-    });
-}
-
 function updateCheckData() {
     var data = {},
         mailConfig = config.mail;
@@ -140,8 +109,7 @@ function updateCheckRequest() {
         reqData = JSON.stringify(reqData);
 
         headers = {
-            'Content-Type': 'application/json',
-            'Content-Length': Buffer.byteLength(reqData)
+            'Content-Length': reqData.length
         };
 
         return new Promise(function p(resolve, reject) {
@@ -180,30 +148,26 @@ function updateCheckRequest() {
     });
 }
 
-/**
- * Handles the response from the update check
- * Does three things with the information received:
- * 1. Updates the time we can next make a check
- * 2. Checks if the version in the response is new, and updates the notification setting
- * 3. Create custom notifications is response from UpdateCheck as "messages" array which has the following structure:
- *
- * "messages": [{
- *   "id": ed9dc38c-73e5-4d72-a741-22b11f6e151a,
- *   "version": "0.5.x",
- *   "content": "<p>Hey there! 0.6 is available, visit <a href=\"https://ghost.org/download\">Ghost.org</a> to grab your copy now<!/p>"
- * ]}
- *
- * @param {Object} response
- * @return {Promise}
- */
+// ## Update Check Response
+// Handles the response from the update check
+// Does two things with the information received:
+// 1. Updates the time we can next make a check
+// 2. Checks if the version in the response is new, and updates the notification setting
 function updateCheckResponse(response) {
-    return Promise.all([
-        api.settings.edit({settings: [{key: 'nextUpdateCheck', value: response.next_check}]}, internal),
-        api.settings.edit({settings: [{key: 'displayUpdateNotification', value: response.version}]}, internal)
-    ]).then(function () {
-        var messages = response.messages || [];
-        return Promise.map(messages, createCustomNotification);
-    });
+    var ops = [];
+
+    ops.push(
+        api.settings.edit(
+            {settings: [{key: 'nextUpdateCheck', value: response.next_check}]},
+            internal
+        ),
+        api.settings.edit(
+            {settings: [{key: 'displayUpdateNotification', value: response.version}]},
+            internal
+        )
+    );
+
+    return Promise.all(ops);
 }
 
 function updateCheck() {

@@ -1,13 +1,13 @@
 var schema    = require('../schema').tables,
     _         = require('lodash'),
     validator = require('validator'),
-    moment    = require('moment'),
     assert    = require('assert'),
     Promise   = require('bluebird'),
     errors    = require('../../errors'),
     config    = require('../../config'),
-    readThemes  = require('../../utils/read-themes'),
+    readThemes = require('../../utils/read-themes'),
     i18n        = require('../../i18n'),
+    toString    = require('lodash.tostring'),
 
     validateSchema,
     validateSettings,
@@ -35,11 +35,7 @@ validator.extend('empty', function empty(str) {
 });
 
 validator.extend('notContains', function notContains(str, badString) {
-    return !_.includes(str, badString);
-});
-
-validator.extend('isTimezone', function isTimezone(str) {
-    return moment.tz.zone(str) ? true : false;
+    return !_.contains(str, badString);
 });
 
 validator.extend('isEmptyOrURL', function isEmptyOrURL(str) {
@@ -58,7 +54,7 @@ validateSchema = function validateSchema(tableName, model) {
 
     _.each(columns, function each(columnKey) {
         var message = '',
-            strVal = _.toString(model[columnKey]);
+            strVal = toString(model[columnKey]);
 
         // check nullable
         if (model.hasOwnProperty(columnKey) && schema[tableName][columnKey].hasOwnProperty('nullable')
@@ -170,7 +166,7 @@ validateActiveTheme = function validateActiveTheme(themeName) {
 // available validators: https://github.com/chriso/validator.js#validators
 validate = function validate(value, key, validations) {
     var validationErrors = [];
-    value = _.toString(value);
+    value = toString(value);
 
     _.each(validations, function each(validationOptions, validationName) {
         var goodResult = true;

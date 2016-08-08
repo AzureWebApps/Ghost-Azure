@@ -1,5 +1,4 @@
 var path            = require('path'),
-    Promise         = require('bluebird'),
     db              = require('../db'),
     errors          = require('../../errors'),
     i18n            = require('../../i18n'),
@@ -7,10 +6,10 @@ var path            = require('path'),
 
     defaultDatabaseVersion;
 
-// Newest Database Version
+// Default Database Version
 // The migration version number according to the hardcoded default settings
 // This is the version the database should be at or migrated to
-function getNewestDatabaseVersion() {
+function getDefaultDatabaseVersion() {
     if (!defaultDatabaseVersion) {
         // This be the current version according to the software
         defaultDatabaseVersion = defaultSettings.core.databaseVersion.defaultValue;
@@ -32,21 +31,24 @@ function getDatabaseVersion() {
                 .first('value')
                 .then(function (version) {
                     if (!version || isNaN(version.value)) {
-                        return Promise.reject(new errors.DatabaseVersion(i18n.t('errors.data.versioning.index.dbVersionNotRecognized')));
+                        return errors.rejectError(new Error(
+                            i18n.t('errors.data.versioning.index.dbVersionNotRecognized')
+                        ));
                     }
 
                     return version.value;
                 });
         }
-
-        return Promise.reject(new errors.DatabaseNotPopulated(i18n.t('errors.data.versioning.index.databaseNotPopulated')));
+        return errors.rejectError(new Error(
+            i18n.t('errors.data.versioning.index.settingsTableDoesNotExist')
+        ));
     });
 }
 
-function setDatabaseVersion(transaction, version) {
-    return (transaction || db.knex)('settings')
+function setDatabaseVersion() {
+    return db.knex('settings')
         .where('key', 'databaseVersion')
-        .update({value: version || defaultDatabaseVersion});
+        .update({value: defaultDatabaseVersion});
 }
 
 function pad(num, width) {
@@ -56,12 +58,19 @@ function pad(num, width) {
 function getMigrationVersions(fromVersion, toVersion) {
     var versions = [],
         i;
-
     for (i = parseInt(fromVersion, 10); i <= toVersion; i += 1) {
         versions.push(pad(i, 3));
     }
 
     return versions;
+}
+
+function showCannotMigrateError() {
+    return errors.logAndRejectError(
+        i18n.t('errors.data.versioning.index.cannotMigrate.error'),
+        i18n.t('errors.data.versioning.index.cannotMigrate.context'),
+        i18n.t('common.seeLinkForInstructions', {link: 'http://support.ghost.org/how-to-upgrade/'})
+    );
 }
 
 /**
@@ -72,32 +81,33 @@ function getMigrationVersions(fromVersion, toVersion) {
  *
  * @param {String} version
  * @param {String} relPath
- * @param {Function} logger
+ * @param {Function} logInfo
  * @returns {Array}
  */
-function getVersionTasks(version, relPath, logger) {
+function getVersionTasks(version, relPath, logInfo) {
     var tasks = [];
 
     try {
         tasks = require(path.join(relPath, version));
     } catch (e) {
-        logger.info('No tasks found for version', version);
+        logInfo('No tasks found for version', version);
     }
 
     return tasks;
 }
 
-function getUpdateDatabaseTasks(version, logger) {
-    return getVersionTasks(version, '../migration/', logger);
+function getUpdateDatabaseTasks(version, logInfo) {
+    return getVersionTasks(version, '../migration/', logInfo);
 }
 
-function getUpdateFixturesTasks(version, logger) {
-    return getVersionTasks(version, '../migration/fixtures/', logger);
+function getUpdateFixturesTasks(version, logInfo) {
+    return getVersionTasks(version, '../migration/fixtures/', logInfo);
 }
 
 module.exports = {
     canMigrateFromVersion: '003',
-    getNewestDatabaseVersion: getNewestDatabaseVersion,
+    showCannotMigrateError: showCannotMigrateError,
+    getDefaultDatabaseVersion: getDefaultDatabaseVersion,
     getDatabaseVersion: getDatabaseVersion,
     setDatabaseVersion: setDatabaseVersion,
     getMigrationVersions: getMigrationVersions,

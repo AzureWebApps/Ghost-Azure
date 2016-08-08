@@ -91,13 +91,10 @@ ConfigManager.prototype.init = function (rawConfig) {
  */
 ConfigManager.prototype.set = function (config) {
     var localPath = '',
-        defaultStorageAdapter = 'local-file-store',
-        defaultSchedulingAdapter = 'SchedulingDefault',
-        activeStorageAdapter,
-        activeSchedulingAdapter,
+        defaultStorage = 'local-file-store',
         contentPath,
+        activeStorage,
         storagePath,
-        schedulingPath,
         subdir,
         assetHash;
 
@@ -145,25 +142,16 @@ ConfigManager.prototype.set = function (config) {
     assetHash = this._config.assetHash ||
         (crypto.createHash('md5').update(packageInfo.version + Date.now()).digest('hex')).substring(0, 10);
 
-    // read storage adapter from config file or attach default adapter
+    // Protect against accessing a non-existent object.
+    // This ensures there's always at least a storage object
+    // because it's referenced in multiple places.
     this._config.storage = this._config.storage || {};
-    activeStorageAdapter = this._config.storage.active || defaultStorageAdapter;
+    activeStorage = this._config.storage.active || defaultStorage;
 
-    // read scheduling adapter(s) from config file or attach default adapter
-    this._config.scheduling = this._config.scheduling || {};
-    activeSchedulingAdapter = this._config.scheduling.active || defaultSchedulingAdapter;
-
-    // we support custom adapters located in content folder
-    if (activeStorageAdapter === defaultStorageAdapter) {
+    if (activeStorage === defaultStorage) {
         storagePath = path.join(corePath, '/server/storage/');
     } else {
         storagePath = path.join(contentPath, 'storage');
-    }
-
-    if (activeSchedulingAdapter === defaultSchedulingAdapter) {
-        schedulingPath = path.join(corePath, '/server/scheduling/');
-    } else {
-        schedulingPath = path.join(contentPath, '/scheduling/');
     }
 
     _.merge(this._config, {
@@ -175,7 +163,7 @@ ConfigManager.prototype.set = function (config) {
             configExample:    path.join(appRoot, 'config.example.js'),
             corePath:         corePath,
 
-            storage:          path.join(storagePath, activeStorageAdapter),
+            storage:          path.join(storagePath, activeStorage),
 
             contentPath:      contentPath,
             themePath:        path.resolve(contentPath, 'themes'),
@@ -191,20 +179,12 @@ ConfigManager.prototype.set = function (config) {
             availableApps:    this._config.paths.availableApps || {},
             clientAssets:     path.join(corePath, '/built/assets/')
         },
-        maintenance: {},
-        scheduling: {
-            active: activeSchedulingAdapter,
-            path: schedulingPath
-        },
         storage: {
-            active: activeStorageAdapter
+            active: activeStorage
         },
         theme: {
             // normalise the URL by removing any trailing slash
-            url: this._config.url ? this._config.url.replace(/\/$/, '') : '',
-
-            // default timezone
-            timezone: 'Etc/UTC'
+            url: this._config.url ? this._config.url.replace(/\/$/, '') : ''
         },
         routeKeywords: {
             tag: 'tag',
@@ -233,11 +213,7 @@ ConfigManager.prototype.set = function (config) {
         deprecatedItems: ['updateCheck', 'mail.fromaddress'],
         // create a hash for cache busting assets
         assetHash: assetHash,
-        preloadHeaders: this._config.preloadHeaders || false,
-        times: {
-            cannotScheduleAPostBeforeInMinutes: 2,
-            publishAPostBySchedulerToleranceInMinutes: 2
-        }
+        preloadHeaders: this._config.preloadHeaders || false
     });
 
     // Also pass config object to
@@ -279,9 +255,8 @@ ConfigManager.prototype.load = function (configFilePath) {
             Promise.resolve(pendingConfig).then(function () {
                 return self.validate();
             }).then(function (rawConfig) {
-                return self.init(rawConfig);
-            }).then(resolve)
-            .catch(reject);
+                resolve(self.init(rawConfig));
+            }).catch(reject);
         });
     });
 };

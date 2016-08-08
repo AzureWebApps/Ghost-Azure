@@ -1,41 +1,47 @@
 // # Mail API
 // API for sending Mail
-
-var Promise       = require('bluebird'),
+var _             = require('lodash').runInContext(),
+    Promise       = require('bluebird'),
     pipeline      = require('../utils/pipeline'),
+    config        = require('../config'),
     errors        = require('../errors'),
-    mail          = require('../mail'),
+    GhostMail     = require('../mail'),
     Models        = require('../models'),
     utils         = require('./utils'),
     notifications = require('./notifications'),
+    path          = require('path'),
+    fs            = require('fs'),
+    templatesDir  = path.resolve(__dirname, '..', 'mail', 'templates'),
+    htmlToText    = require('html-to-text'),
+    readFile      = Promise.promisify(fs.readFile),
     docName       = 'mail',
     i18n          = require('../i18n'),
     mode          = process.env.NODE_ENV,
     testing       = mode !== 'production' && mode !== 'development',
     mailer,
-    apiMail;
+    mail;
+
+_.templateSettings.interpolate = /{{([\s\S]+?)}}/g;
 
 /**
  * Send mail helper
  */
+
 function sendMail(object) {
-    if (!(mailer instanceof mail.GhostMailer) || testing) {
-        mailer = new mail.GhostMailer();
+    if (!(mailer instanceof GhostMail) || testing) {
+        mailer = new GhostMail();
     }
 
     return mailer.send(object.mail[0].message).catch(function (err) {
         if (mailer.state.usingDirect) {
-            notifications.add(
-                {notifications: [{
-                    type: 'warn',
-                    message: [
-                        i18n.t('warnings.index.unableToSendEmail'),
-                        i18n.t('common.seeLinkForInstructions',
-                            {link: '<a href=\'http://support.ghost.org/mail\' target=\'_blank\'>http://support.ghost.org/mail</a>'})
-                    ].join(' ')
-                }]},
-                {context: {internal: true}}
-            );
+            notifications.add({notifications: [{
+                type: 'warn',
+                message: [
+                    i18n.t('warnings.index.unableToSendEmail'),
+                    i18n.t('common.seeLinkForInstructions',
+                    {link: '<a href=\'http://support.ghost.org/mail\' target=\'_blank\'>http://support.ghost.org/mail</a>'})
+                ].join(' ')
+            }]}, {context: {internal: true}});
         }
 
         return Promise.reject(new errors.EmailError(err.message));
@@ -49,7 +55,7 @@ function sendMail(object) {
  * @typedef Mail
  * @param mail
  */
-apiMail = {
+mail = {
     /**
      * ### Send
      * Send an email
@@ -86,9 +92,9 @@ apiMail = {
         }
 
         tasks = [
-            utils.handlePermissions(docName, 'send'),
-            send,
-            formatResponse
+                utils.handlePermissions(docName, 'send'),
+                send,
+                formatResponse
         ];
 
         return pipeline(tasks, options || {});
@@ -118,7 +124,7 @@ apiMail = {
          */
 
         function generateContent(result) {
-            return mail.utils.generateContent({template: 'test'}).then(function (content) {
+            return mail.generateContent({template: 'test'}).then(function (content) {
                 var payload = {
                     mail: [{
                         message: {
@@ -149,7 +155,45 @@ apiMail = {
         ];
 
         return pipeline(tasks);
+    },
+
+    /**
+     *
+     * @param {Object} options {
+     *              data: JSON object representing the data that will go into the email
+     *              template: which email template to load (files are stored in /core/server/mail/templates/)
+     *          }
+     * @returns {*}
+     */
+    generateContent: function (options) {
+        var defaults,
+            data;
+
+        defaults = {
+            siteUrl: config.forceAdminSSL ? (config.urlSSL || config.url) : config.url
+        };
+
+        data = _.defaults(defaults, options.data);
+
+        // read the proper email body template
+        return readFile(path.join(templatesDir, options.template + '.html'), 'utf8').then(function (content) {
+            var compiled,
+                htmlContent,
+                textContent;
+
+            // insert user-specific data into the email
+            compiled = _.template(content);
+            htmlContent = compiled(data);
+
+            // generate a plain-text version of the same email
+            textContent = htmlToText.fromString(htmlContent);
+
+            return {
+                html: htmlContent,
+                text: textContent
+            };
+        });
     }
 };
 
-module.exports = apiMail;
+module.exports = mail;
