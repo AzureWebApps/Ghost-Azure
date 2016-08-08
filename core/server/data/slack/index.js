@@ -9,6 +9,7 @@ var https           = require('https'),
     schema          = require('../schema').checks,
     options,
     req,
+    slack = {},
     slackData = {};
 
 function getSlackSettings() {
@@ -16,7 +17,7 @@ function getSlackSettings() {
         var slackSetting = response.settings[0].value;
 
         try {
-            slackSetting = JSON.parse(slackSetting);
+            slackSetting = JSON.parse(slackSetting) || slackSetting;
         } catch (e) {
             return Promise.reject(e);
         }
@@ -82,29 +83,24 @@ function ping(post) {
             options.headers = {'Content-type': 'application/json'};
 
             // with all the data we have, we're doing the request now
-            makeRequest(options, slackData);
+            slack._makeRequest(options, slackData);
         } else {
             return;
         }
     });
 }
 
-function listener(model) {
-    ping(model.toJSON());
-}
-
-function testPing() {
-    ping({
-        message: 'Heya! This is a test notification from your Ghost blog :simple_smile:. Seems to work fine!'
+function init() {
+    events.on('post.published', function (model) {
+        slack._ping(model.toJSON());
+    });
+    events.on('slack.test', function () {
+        slack._ping({
+            message: 'Heya! This is a test notification from your Ghost blog :simple_smile:. Seems to work fine!'
+        });
     });
 }
-
-function listen() {
-    events.on('post.published', listener);
-    events.on('slack.test', testPing);
-}
-
-// Public API
-module.exports = {
-    listen: listen
-};
+slack.init = init;
+slack._ping = ping;
+slack._makeRequest = makeRequest;
+module.exports = slack;

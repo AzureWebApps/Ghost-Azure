@@ -84,15 +84,7 @@ I18n = {
     init: function init() {
         // read file for current locale and keep its content in memory
         blos = fs.readFileSync(__dirname + '/translations/' + currentLocale + '.json');
-
-        // if translation file is not valid, you will see an error
-        try {
-            blos = JSON.parse(blos);
-        } catch (err) {
-            blos = undefined;
-            throw err;
-        }
-
+        blos = JSON.parse(blos);
         if (global.Intl) {
             // Determine if the built-in `Intl` has the locale data we need.
             var hasBuiltInLocaleData,

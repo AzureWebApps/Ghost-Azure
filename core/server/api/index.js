@@ -7,12 +7,12 @@
 var _              = require('lodash'),
     Promise        = require('bluebird'),
     config         = require('../config'),
+    // Include Endpoints
     configuration  = require('./configuration'),
     db             = require('./db'),
     mail           = require('./mail'),
     notifications  = require('./notifications'),
     posts          = require('./posts'),
-    schedules      = require('./schedules'),
     roles          = require('./roles'),
     settings       = require('./settings'),
     tags           = require('./tags'),
@@ -60,7 +60,6 @@ cacheInvalidationHeader = function cacheInvalidationHeader(req, result) {
     var parsedUrl = req._parsedUrl.pathname.replace(/^\/|\/$/g, '').split('/'),
         method = req.method,
         endpoint = parsedUrl[0],
-        subdir = parsedUrl[1],
         jsonResult = result.toJSON ? result.toJSON() : result,
         INVALIDATE_ALL = '/*',
         post,
@@ -68,9 +67,6 @@ cacheInvalidationHeader = function cacheInvalidationHeader(req, result) {
         wasPublishedUpdated;
 
     if (['POST', 'PUT', 'DELETE'].indexOf(method) > -1) {
-        if (endpoint === 'schedules' && subdir === 'posts') {
-            return INVALIDATE_ALL;
-        }
         if (['settings', 'users', 'db', 'tags'].indexOf(endpoint) > -1) {
             return INVALIDATE_ALL;
         } else if (endpoint === 'posts') {
@@ -217,8 +213,7 @@ http = function http(apiMethod) {
         var object = req.body,
             options = _.extend({}, req.file, req.query, req.params, {
                 context: {
-                    user: ((req.user && req.user.id) || (req.user && req.user.id === 0)) ? req.user.id : null,
-                    client: (req.client && req.client.slug) ? req.client.slug : null
+                    user: ((req.user && req.user.id) || (req.user && req.user.id === 0)) ? req.user.id : null
                 }
             });
 
@@ -262,7 +257,6 @@ module.exports = {
     mail: mail,
     notifications: notifications,
     posts: posts,
-    schedules: schedules,
     roles: roles,
     settings: settings,
     tags: tags,

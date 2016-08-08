@@ -4,7 +4,6 @@ var Promise            = require('bluebird'),
     _                  = require('lodash'),
     permissions        = require('../permissions'),
     errors             = require('../errors'),
-    settings           = require('./settings'),
     utils              = require('./utils'),
     pipeline           = require('../utils/pipeline'),
     canThis            = permissions.canThis,
@@ -47,7 +46,6 @@ notifications = {
          *      message: 'This is an error', // A string. Should fit in one line.
          *      location: 'bottom', // A string where this notification should appear. can be 'bottom' or 'top'
          *      dismissible: true // A Boolean. Whether the notification is dismissible or not.
-         *      custom: true // A Boolean. Whether the notification is a custom message intended for particular Ghost versions.
          *  }] };
      * ```
      */
@@ -123,20 +121,6 @@ notifications = {
         var tasks;
 
         /**
-         * Adds the uuid of notification to "seenNotifications" array.
-         * @param {Object} notification
-         * @return {*|Promise}
-         */
-        function markAsSeen(notification) {
-            var context = {internal: true};
-            return settings.read({key: 'seenNotifications', context: context}).then(function then(response) {
-                var seenNotifications = JSON.parse(response.settings[0].value);
-                seenNotifications = _.uniqBy(seenNotifications.concat([notification.uuid]));
-                return settings.edit({settings: [{key: 'seenNotifications', value: seenNotifications}]}, {context: context});
-            });
-        }
-
-        /**
          * ### Handle Permissions
          * We need to be an authorised user to perform this action
          * @param {Object} options
@@ -169,10 +153,6 @@ notifications = {
                 return element.id === parseInt(options.id, 10);
             });
             notificationCounter = notificationCounter - 1;
-
-            if (notification.custom) {
-                return markAsSeen(notification);
-            }
         }
 
         tasks = [

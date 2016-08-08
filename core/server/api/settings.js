@@ -60,8 +60,7 @@ updateConfigCache = function () {
             postsPerPage: (settingsCache.postsPerPage && settingsCache.postsPerPage.value) || 5,
             permalinks: (settingsCache.permalinks && settingsCache.permalinks.value) || '/:slug/',
             twitter: (settingsCache.twitter && settingsCache.twitter.value) || '',
-            facebook: (settingsCache.facebook && settingsCache.facebook.value) || '',
-            timezone: (settingsCache.activeTimezone && settingsCache.activeTimezone.value) || config.theme.timezone
+            facebook: (settingsCache.facebook && settingsCache.facebook.value) || ''
         },
         labs: labsValue
     });
@@ -74,8 +73,7 @@ updateConfigCache = function () {
  * @param {Object} settings
  * @returns {Settings}
  */
-updateSettingsCache = function (settings, options) {
-    options = options || {};
+updateSettingsCache = function (settings) {
     settings = settings || {};
 
     if (!_.isEmpty(settings)) {
@@ -88,7 +86,7 @@ updateSettingsCache = function (settings, options) {
         return Promise.resolve(settingsCache);
     }
 
-    return dataProvider.Settings.findAll(options)
+    return dataProvider.Settings.findAll()
         .then(function (result) {
             settingsCache = readSettingsResult(result.models);
 
@@ -109,7 +107,7 @@ updateSettingsCache = function (settings, options) {
  * @returns {*}
  */
 settingsFilter = function (settings, filter) {
-    return _.fromPairs(_.filter(_.toPairs(settings), function (setting) {
+    return _.object(_.filter(_.pairs(settings), function (setting) {
         if (filter) {
             return _.some(filter.split(','), function (f) {
                 return setting[1].type === f;

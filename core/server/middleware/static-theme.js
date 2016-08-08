@@ -7,13 +7,7 @@ var _       = require('lodash'),
 function isBlackListedFileType(file) {
     var blackListedFileTypes = ['.hbs', '.md', '.json'],
         ext = path.extname(file);
-    return _.includes(blackListedFileTypes, ext);
-}
-
-function isWhiteListedFile(file) {
-    var whiteListedFiles = ['manifest.json'],
-        base = path.basename(file);
-    return _.includes(whiteListedFiles, base);
+    return _.contains(blackListedFileTypes, ext);
 }
 
 function forwardToExpressStatic(req, res, next) {
@@ -29,7 +23,7 @@ function forwardToExpressStatic(req, res, next) {
 
 function staticTheme() {
     return function blackListStatic(req, res, next) {
-        if (!isWhiteListedFile(req.path) && isBlackListedFileType(req.path)) {
+        if (isBlackListedFileType(req.path)) {
             return next();
         }
         return forwardToExpressStatic(req, res, next);

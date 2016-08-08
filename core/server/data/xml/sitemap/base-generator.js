@@ -80,7 +80,7 @@ _.extend(BaseSiteMapGenerator.prototype, {
             // Sort nodes by timestamp
             sortedNodes = _.sortBy(timedNodes, 'ts'),
             // Grab just the nodes
-            urlElements = _.map(sortedNodes, 'node'),
+            urlElements = _.pluck(sortedNodes, 'node'),
             data = {
                 // Concat the elements to the _attr declaration
                 urlset: [XMLNS_DECLS].concat(urlElements)

@@ -12,6 +12,7 @@ var _              = require('lodash'),
     config         = require('../config'),
     baseUtils      = require('./base/utils'),
     i18n           = require('../i18n'),
+    toString       = require('lodash.tostring'),
     Post,
     Posts;
 
@@ -60,8 +61,7 @@ Post = ghostBookshelf.Model.extend({
             model.wasPublished = model.updated('status') === 'published';
             model.wasScheduled = model.updated('status') === 'scheduled';
             model.resourceTypeChanging = model.get('page') !== model.updated('page');
-            model.publishedAtHasChanged = model.hasDateChanged('published_at');
-            model.needsReschedule = model.publishedAtHasChanged && model.isScheduled;
+            model.needsReschedule = model.get('published_at') !== model.updated('published_at');
 
             // Handle added and deleted for post -> page or page -> post
             if (model.resourceTypeChanging) {
@@ -101,7 +101,7 @@ Post = ghostBookshelf.Model.extend({
                     }
 
                     // CASE: from scheduled to something
-                    if (model.wasScheduled && !model.isScheduled && !model.isPublished) {
+                    if (model.wasScheduled && !model.isScheduled) {
                         model.emitChange('unscheduled');
                     }
                 } else {
@@ -138,23 +138,12 @@ Post = ghostBookshelf.Model.extend({
             // Variables to make the slug checking more readable
             newTitle    = this.get('title'),
             newStatus   = this.get('status'),
-            olderStatus = this.previous('status'),
             prevTitle   = this._previousAttributes.title,
             prevSlug    = this._previousAttributes.slug,
             tagsToCheck = this.get('tags'),
-            publishedAt = this.get('published_at'),
-            publishedAtHasChanged = this.hasDateChanged('published_at'),
-            tags = [];
+            publishedAt = this.get('published_at');
 
-        // CASE: disallow published -> scheduled
-        // @TODO: remove when we have versioning based on updated_at
-        if (newStatus !== olderStatus && newStatus === 'scheduled' && olderStatus === 'published') {
-            return Promise.reject(new errors.ValidationError(
-                i18n.t('errors.models.post.isAlreadyPublished', {key: 'status'})
-            ));
-        }
-
-        // CASE: both page and post can get scheduled
+        // both page and post can get scheduled
         if (newStatus === 'scheduled') {
             if (!publishedAt) {
                 return Promise.reject(new errors.ValidationError(
@@ -164,40 +153,37 @@ Post = ghostBookshelf.Model.extend({
                 return Promise.reject(new errors.ValidationError(
                     i18n.t('errors.models.post.valueCannotBeBlank', {key: 'published_at'})
                 ));
-            // CASE: to schedule/reschedule a post, a minimum diff of x minutes is needed (default configured is 2minutes)
-            } else if (publishedAtHasChanged && moment(publishedAt).isBefore(moment().add(config.times.cannotScheduleAPostBeforeInMinutes, 'minutes'))) {
+            } else if (moment(publishedAt).isBefore(moment())) {
                 return Promise.reject(new errors.ValidationError(
-                    i18n.t('errors.models.post.expectedPublishedAtInFuture', {
-                        cannotScheduleAPostBeforeInMinutes: config.times.cannotScheduleAPostBeforeInMinutes
-                    })
+                    i18n.t('errors.models.post.expectedPublishedAtInFuture')
+                ));
+            } else if (moment(publishedAt).isBefore(moment().add(5, 'minutes'))) {
+                return Promise.reject(new errors.ValidationError(
+                    i18n.t('errors.models.post.expectedPublishedAtInFuture')
                 ));
             }
         }
 
-        // If we have a tags property passed in
-        if (!_.isUndefined(tagsToCheck) && !_.isNull(tagsToCheck)) {
-            //  and deduplicate upper/lowercase tags
-            _.each(tagsToCheck, function each(item) {
-                for (i = 0; i < tags.length; i = i + 1) {
-                    if (tags[i].name.toLocaleLowerCase() === item.name.toLocaleLowerCase()) {
-                        return;
-                    }
+        // keep tags for 'saved' event and deduplicate upper/lowercase tags
+        this.myTags = [];
+
+        _.each(tagsToCheck, function each(item) {
+            for (i = 0; i < self.myTags.length; i = i + 1) {
+                if (self.myTags[i].name.toLocaleLowerCase() === item.name.toLocaleLowerCase()) {
+                    return;
                 }
+            }
 
-                tags.push(item);
-            });
-
-            // keep tags for 'saved' event
-            this.tagsToSave = tags;
-        }
+            self.myTags.push(item);
+        });
 
         ghostBookshelf.Model.prototype.saving.call(this, model, attr, options);
 
-        this.set('html', converter.makeHtml(_.toString(this.get('markdown'))));
+        this.set('html', converter.makeHtml(toString(this.get('markdown'))));
 
         // disabling sanitization until we can implement a better version
         title = this.get('title') || i18n.t('errors.models.post.untitled');
-        this.set('title', _.toString(title).trim());
+        this.set('title', toString(title).trim());
 
         // ### Business logic for published_at and published_by
         // If the current status is 'published' and published_at is not set, set it to now
@@ -266,12 +252,7 @@ Post = ghostBookshelf.Model.extend({
      * @return {Promise(ghostBookshelf.Models.Post)} Updated Post model
      */
     updateTags: function updateTags(savedModel, response, options) {
-        if (_.isUndefined(this.tagsToSave)) {
-            // The tag property was not set, so we shouldn't be doing any playing with tags on this request
-            return Promise.resolve();
-        }
-
-        var newTags = this.tagsToSave,
+        var newTags = this.myTags,
             TagModel = ghostBookshelf.model('Tag');
 
         options = options || {};
@@ -296,14 +277,14 @@ Post = ghostBookshelf.Model.extend({
                     if (newTags.length === 0) {
                         return false;
                     }
-                    return _.some(newTags, function (newTag) {
+                    return _.any(newTags, function (newTag) {
                         return baseUtils.tagUpdate.tagsAreEqual(currentTag, newTag);
                     });
                 });
 
                 // Tags from the new tag array which don't exist in the DB should be created
-                tagsToCreate = _.map(_.reject(newTags, function (newTag) {
-                    return _.some(existingTags, function (existingTag) {
+                tagsToCreate = _.pluck(_.reject(newTags, function (newTag) {
+                    return _.any(existingTags, function (existingTag) {
                         return baseUtils.tagUpdate.tagsAreEqual(existingTag, newTag);
                     });
                 }), 'name');
@@ -393,10 +374,6 @@ Post = ghostBookshelf.Model.extend({
         return this.morphMany('AppField', 'relatable');
     },
 
-    defaultColumnsToFetch: function defaultColumnsToFetch() {
-        return ['id', 'published_at', 'slug', 'author_id'];
-    },
-
     toJSON: function toJSON(options) {
         options = options || {};
 
@@ -433,16 +410,6 @@ Post = ghostBookshelf.Model.extend({
         };
     },
 
-    orderDefaultRaw: function () {
-        return '' +
-            'CASE WHEN posts.status = \'scheduled\' THEN 1 ' +
-            'WHEN posts.status = \'draft\' THEN 2 ' +
-            'ELSE 3 END ASC,' +
-            'posts.published_at DESC,' +
-            'posts.updated_at DESC,' +
-            'posts.id DESC';
-    },
-
     /**
      * @deprecated in favour of filter
      */
@@ -458,7 +425,7 @@ Post = ghostBookshelf.Model.extend({
         if (options.staticPages && options.staticPages !== 'all') {
             // convert string true/false to boolean
             if (!_.isBoolean(options.staticPages)) {
-                options.staticPages = _.includes(['true', '1'], options.staticPages);
+                options.staticPages = _.contains(['true', '1'], options.staticPages);
             }
             options.where.statements.push({prop: 'page', op: '=', value: options.staticPages});
             delete options.staticPages;
@@ -471,11 +438,11 @@ Post = ghostBookshelf.Model.extend({
         // the status provided.
         if (options.status && options.status !== 'all') {
             // make sure that status is valid
-            options.status = _.includes(['published', 'draft', 'scheduled'], options.status) ? options.status : 'published';
+            options.status = _.contains(['published', 'draft'], options.status) ? options.status : 'published';
             options.where.statements.push({prop: 'status', op: '=', value: options.status});
             delete options.status;
         } else if (options.status === 'all') {
-            options.where.statements.push({prop: 'status', op: 'IN', value: ['published', 'draft', 'scheduled']});
+            options.where.statements.push({prop: 'status', op: 'IN', value: ['published', 'draft']});
             delete options.status;
         }
 
@@ -495,7 +462,8 @@ Post = ghostBookshelf.Model.extend({
             validOptions = {
                 findOne: ['columns', 'importing', 'withRelated', 'require'],
                 findPage: ['page', 'limit', 'columns', 'filter', 'order', 'status', 'staticPages'],
-                findAll: ['columns', 'filter']
+                findAll: ['columns', 'filter'],
+                add: ['importing']
             };
 
         if (validOptions[methodName]) {
@@ -532,8 +500,8 @@ Post = ghostBookshelf.Model.extend({
     findOne: function findOne(data, options) {
         options = options || {};
 
-        var withNext = _.includes(options.include, 'next'),
-            withPrev = _.includes(options.include, 'previous'),
+        var withNext = _.contains(options.include, 'next'),
+            withPrev = _.contains(options.include, 'previous'),
             nextRelations = _.transform(options.include, function (relations, include) {
                 if (include === 'next.tags') {
                     relations.push('tags');
@@ -565,7 +533,7 @@ Post = ghostBookshelf.Model.extend({
 
         return ghostBookshelf.Model.findOne.call(this, data, options).then(function then(post) {
             if ((withNext || withPrev) && post && !post.page) {
-                var publishedAt = moment(post.get('published_at')).format('YYYY-MM-DD HH:mm:ss'),
+                var publishedAt = post.get('published_at'),
                     prev,
                     next;
 

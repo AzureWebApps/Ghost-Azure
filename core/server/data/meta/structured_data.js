@@ -24,7 +24,7 @@ function getStructuredData(metaData) {
         'twitter:title': metaData.metaTitle,
         'twitter:description': metaData.metaDescription || metaData.excerpt,
         'twitter:url': metaData.canonicalUrl,
-        'twitter:image': metaData.coverImage,
+        'twitter:image:src': metaData.coverImage,
         'twitter:label1': metaData.authorName ? 'Written by' : undefined,
         'twitter:data1': metaData.authorName,
         'twitter:label2': metaData.keywords ? 'Filed under' : undefined,

@@ -7,15 +7,15 @@ function getDescription(data, root) {
 
     if (data.meta_description) {
         description = data.meta_description;
-    } else if (_.includes(context, 'paged')) {
+    } else if (_.contains(context, 'paged')) {
         description = '';
-    } else if (_.includes(context, 'home')) {
+    } else if (_.contains(context, 'home')) {
         description = config.theme.description;
-    } else if (_.includes(context, 'author') && data.author) {
+    } else if (_.contains(context, 'author') && data.author) {
         description = data.author.meta_description || data.author.bio;
-    } else if (_.includes(context, 'tag') && data.tag) {
+    } else if (_.contains(context, 'tag') && data.tag) {
         description = data.tag.meta_description || data.tag.description;
-    } else if ((_.includes(context, 'post') || _.includes(context, 'page')) && data.post) {
+    } else if ((_.contains(context, 'post') || _.contains(context, 'page')) && data.post) {
         description = data.post.meta_description;
     }
 
