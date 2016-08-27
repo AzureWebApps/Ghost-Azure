@@ -1,0 +1,22 @@
+            <div class="row">
+                <div class="col s12 m6 offset-m3">
+                    {{#if prev}}
+                    <a href="{{page_url prev}}" class="left">
+                        <button class="btn-floating">
+                            <i class="material-icons">&#xE5C4;</i>
+                        <div class="ripple-container"></div></button>
+                        Newer                    
+                    </a>
+                    {{else}}
+                    {{/if}}
+                    {{#if next}}
+                    <a href="{{page_url next}}" class="right">
+                        Older
+                        <button class="btn-floating">
+                            <i class="material-icons">&#xE5C8;</i>
+                        </button>
+                    </a>
+                    {{else}}
+                    {{/if}}
+                </div>
+            </div>

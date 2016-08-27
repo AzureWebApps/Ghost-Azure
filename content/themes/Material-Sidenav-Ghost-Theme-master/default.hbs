@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {{!Responsive and meta tags}}
+        <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="theme-color" content="#263238">
+        {{!Title and description}}
+        <title>{{meta_title}}</title>
+        <meta name="description" content="{{meta_description}}" />
+        {{!CSS}}
+        <link type="text/css" rel="stylesheet" href="{{asset "assets/css/materialize.min.css"}}" media="screen,projection">
+        <link type="text/css" rel="stylesheet" href="{{asset "assets/css/style.min.css"}}" media="screen,projection">  
+        {{! Social Meta Tags If you need..}}
+        {{! Ghost header injection }}
+        {{ghost_head}}
+    </head>
+    <body class="{{body_class}}">
+        {{!Sidenav and Navbar}}
+        <nav id="nav-trans" class="transparent">
+            <a href="{{@blog.url}}" class="brand-logo center">{{@blog.title}}</a>
+            <div id="slide-out" class="side-nav fixed blue-grey darken-4">
+                <div class="navwrapper container">  
+                    <h1 id="nav-head">{{@blog.title}}</h1>
+                    <p class="blue-grey-text text-lighten-4">{{@blog.description}}</p>
+                    <a href="{{@blog.url}}"><i class="material-icons">&#xE88A;</i> HOME</a>
+                    <a href="#"><i class="material-icons">&#xE7FD;</i> PROFILE</a>
+                    <div class="navmenu-social">
+                        <a href="#" class="btn-floating">
+                            <i class="fa fa-facebook" aria-hidden="true"></i>
+                        </a>
+                        <a href="#" class="btn-floating">
+                            <i class="fa fa-twitter" aria-hidden="true"></i>
+                        </a>
+                        <a href="#" class="btn-floating">
+                            <i class="fa fa-envelope" aria-hidden="true"></i>
+                        <a href="#" class="btn-floating">
+                            <i class="fa fa-github" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <a href="#" data-activates="slide-out" class="button-collapse">
+                <i class="material-icons">&#xE5D2;</i>
+            </a>
+        </nav>
+        {{! Content }}
+        {{{ body }}}
+        {{!footer}}
+        <footer class="page-footer blue-grey darken-3">
+            <div class="container">
+                <div class="row">
+                    <div class="col l6 s12 white-text">
+                        <h4>{{@blog.title}}</h4>
+                        <p>{{@blog.description}}</p>
+                    </div>
+                    <div class="col l6 s12 white-text">
+                        <h4>About </h4>
+                        <p>About urself :D</p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-copyright">
+                <div class="container">
+                    <a href="http://creativecommons.org/licenses/by-sa/4.0/">
+                              Creative Commons BY-SA 4.0
+                    </a> - 2016
+                    <div class="right">
+                        Powered by <a href="https://ghost.org/">Ghost</a>
+                        Theme <a href="https://github.com/SuphanutJui/Material-Sidenav-Ghost-Theme">Material Sidenav</a>
+                    </div>
+                </div>
+            </div>
+        </footer> 
+        {{!Script}}
+        <script src="{{asset "js/jquery-2.1.4.min.js"}}"></script>
+        <script src="{{asset "js/materialize.min.js"}}"></script>
+        <script src="{{asset "js/script.min.js"}}"></script>
+        {{! Ghost body injection }}
+        {{ghost_foot}}
+    </body>
+</html>
