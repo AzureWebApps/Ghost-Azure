@@ -201,6 +201,7 @@ nav .button-collapse {
     vertical-align: middle;
     position: absolute;
     object-fit: cover;
+	left: 0px;
     object-position: left;
     top: 0;
     left: 0;
