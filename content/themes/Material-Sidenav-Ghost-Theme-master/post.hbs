@@ -1,0 +1,68 @@
+{{!< default }}
+        {{#post}}
+        <main> 
+            <div class="row">
+                <div class="post col s12 m12 l10 offset-l1">
+                    <article class="card">
+                        <div class="card-image bg-darken">
+                            <img src="{{image}}">
+                            <h2 class="card-title animated fadeInDown">
+                                {{title}}
+                            </h2>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-header">
+                                <div class="card-meta blue-grey-text text-lighten-2">
+                                   <div class="card-tag"> {{!Tag}}
+                                        <i class="fa fa-hashtag" aria-hidden="true"></i>
+                                        {{#foreach tags}}
+                                            <a href="{{url}}" title="{{name}}" class="blue-grey-text text-lighten-2">{{name}}</a>
+                                        {{/foreach}}
+                                    </div>
+                                    <time class="card-date" datetime="{{date format='YYYY-MM-DD'}}">
+                                        <i class="material-icons">&#xE192;</i> 
+                                        {{date format='YYYY-MM-DD'}}
+                                    </time>
+                                </div>
+                            </div>
+                            <div class="post-p"> {{!Content here}}
+                               {{content}}
+                            </div>
+                        </div>
+                        <div class="card-action">
+                            <h3><i class="material-icons">&#xE80D;</i> Share this: </h3>
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{url absolute="true"}}" class="btn-floating fb intent" data-width="580" height="235">
+                                <i class="fa fa-facebook" aria-hidden="true"></i>
+                            </a>
+                            <a href="https://twitter.com/intent/tweet?text={{encode title}}&amp;url={{url absolute="true"}}" class="btn-floating tw intent" data-width="550" data-height="235">
+                                <i class="fa fa-twitter" aria-hidden="true"></i>
+                            </a>
+                            <a href="https://plus.google.com/share?url={{url absolute="true"}}" class="btn-floating gp intent" data-width="590" data-height="530">
+                                <i class="fa fa-google-plus" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </article>
+                </div>
+            </div>
+            <div class="row"> {{! Previous and Next page navigation}}
+                <div class="col s12 m8 offset-m2">
+                    {{#next_post}}
+                    <a href="{{url}}" class="left">
+                        <button class="btn-floating">
+                            <i class="material-icons">&#xE5C4;</i>
+                        <div class="ripple-container"></div></button>
+                        Newer                    
+                    </a>
+                    {{/next_post}}
+                    {{#prev_post}}
+                    <a href="{{url}}" class="right">
+                        Older
+                        <button class="btn-floating">
+                            <i class="material-icons">&#xE5C8;</i>
+                        </button>
+                    </a>
+                    {{/prev_post}}
+                </div>
+            </div>
+        </main>
+        {{/post}}

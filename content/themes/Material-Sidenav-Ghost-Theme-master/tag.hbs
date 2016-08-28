@@ -1,0 +1,59 @@
+{{!< default}}
+        <main>
+            <div class="tag-title blue-grey darken-3 white-text">
+                <div class="row">
+                    <div class="col m8 offset-m2">
+                        <h2><i class="fa fa-hashtag" aria-hidden="true"></i> Tag: {{tag.name}}</h2>
+                    </div>
+                </div>
+            </div>
+            {{#foreach posts}}
+            <div class="row">
+                <div class="card-front animated col s12 m12 l8 offset-l2">
+                    <article class="card">
+                        {{!Cover Image}}
+                        <div class="card-image">
+                            <a href="{{url}}"><img src="{{image}}"></a>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-header">
+                                {{!post meta (time posted, tags)}}
+                                <div class="card-meta blue-grey-text text-lighten-2">
+                                    <div class="card-tag"> {{!Tag}}
+                                        <i class="fa fa-hashtag" aria-hidden="true"></i>
+                                        {{#foreach tags}}
+                                            <a href="{{url}}" title="{{name}}" class="blue-grey-text text-lighten-2">{{name}}</a>
+                                        {{/foreach}}
+                                    </div>
+                                    <time class="card-date" datetime="{{date format='YYYY-MM-DD'}}">
+                                        <i class="material-icons">&#xE192;</i> 
+                                        {{date format='YYYY-MM-DD'}}
+                                    </time>
+                                </div>
+                                {{!Post Title}}
+                                <h2 class="card-title">
+                                    <a href="{{url}}">{{title}}</a>
+                                </h2>
+                            </div>
+                            {{!Post Content with limitation of 50 words}}
+                            <p>{{excerpt words="50"}}&hellip;</p>
+                        </div>
+                        <div class="card-action">
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{url absolute="true"}}" class="btn-floating fb" data-width="580" height="235">
+                                <i class="fa fa-facebook" aria-hidden="true"></i>
+                            </a>
+                            <a href="https://twitter.com/intent/tweet?text={{encode title}}&amp;url={{url absolute="true"}}" class="btn-floating tw" data-width="580" height="235">
+                                <i class="fa fa-twitter" aria-hidden="true"></i>
+                            </a>
+                            <a href="https://plus.google.com/share?url={{url absolute="true"}}" class="btn-floating gp" data-width="580" height="235">
+                                <i class="fa fa-google-plus" aria-hidden="true"></i>
+                            </a>
+                            <a class="waves-effect waves-light btn right" href="{{url}}">read more</a>
+                        </div>
+                    </article>
+                </div>
+            </div>
+            {{/foreach}}
+            {{! Blog pagination }}
+            {{#if pagination}}{{pagination}}{{/if}}
+        </main>
