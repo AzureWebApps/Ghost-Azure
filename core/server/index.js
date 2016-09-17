@@ -1,6 +1,17 @@
 // # Bootup
 // This file needs serious love & refactoring
 
+/**
+ * make sure overrides get's called first!
+ * - keeping the overrides require here works for installing Ghost as npm!
+ *
+ * the call order is the following:
+ * - root index requires core module
+ * - core index requires server
+ * - overrides is the first package to load
+ */
+require('./overrides');
+
 // Module dependencies
 var express = require('express'),
     _ = require('lodash'),
@@ -16,7 +27,6 @@ var express = require('express'),
     models = require('./models'),
     permissions = require('./permissions'),
     apps = require('./apps'),
-    sitemap = require('./data/xml/sitemap'),
     xmlrpc = require('./data/xml/xmlrpc'),
     slack = require('./data/slack'),
     GhostServer = require('./ghost-server'),
@@ -86,6 +96,10 @@ function init(options) {
                     }).then(function () {
                         config.maintenance.enabled = maintenanceState;
                     }).catch(function (err) {
+                        if (!err) {
+                            return;
+                        }
+
                         errors.logErrorAndExit(err, err.context, err.help);
                     });
                 } else if (response.error) {
@@ -115,8 +129,6 @@ function init(options) {
             initDbHashAndFirstRun(),
             // Initialize apps
             apps.init(),
-            // Initialize sitemaps
-            sitemap.init(),
             // Initialize xmrpc ping
             xmlrpc.listen(),
             // Initialize slack ping
@@ -148,7 +160,7 @@ function init(options) {
 
         // scheduling can trigger api requests, that's why we initialize the module after the ghost server creation
         // scheduling module can create x schedulers with different adapters
-        return scheduling.init(_.extend(config.scheduling, {apiUrl: config.url + config.urlFor('api')}));
+        return scheduling.init(_.extend(config.scheduling, {apiUrl: config.urlFor('api', null, true)}));
     }).then(function () {
         return ghostServer;
     });

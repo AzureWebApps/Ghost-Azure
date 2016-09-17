@@ -17,9 +17,9 @@ var _              = require('lodash'),
     settings       = require('./settings'),
     tags           = require('./tags'),
     clients        = require('./clients'),
-    themes         = require('./themes'),
     users          = require('./users'),
     slugs          = require('./slugs'),
+    themes         = require('./themes'),
     subscribers    = require('./subscribers'),
     authentication = require('./authentication'),
     uploads        = require('./upload'),
@@ -42,6 +42,10 @@ var _              = require('lodash'),
 init = function init() {
     return settings.updateSettingsCache();
 };
+
+function isActiveThemeOverride(method, endpoint, result) {
+    return method === 'POST' && endpoint === 'themes' && result.themes && result.themes[0] && result.themes[0].active === true;
+}
 
 /**
  * ### Cache Invalidation Header
@@ -67,7 +71,12 @@ cacheInvalidationHeader = function cacheInvalidationHeader(req, result) {
         hasStatusChanged,
         wasPublishedUpdated;
 
-    if (['POST', 'PUT', 'DELETE'].indexOf(method) > -1) {
+    if (isActiveThemeOverride(method, endpoint, result)) {
+        // Special case for if we're overwriting an active theme
+        // @TODO: remove this crazy DIRTY HORRIBLE HACK
+        req.app.set('activeTheme', null);
+        return INVALIDATE_ALL;
+    } else if (['POST', 'PUT', 'DELETE'].indexOf(method) > -1) {
         if (endpoint === 'schedules' && subdir === 'posts') {
             return INVALIDATE_ALL;
         }
@@ -90,7 +99,7 @@ cacheInvalidationHeader = function cacheInvalidationHeader(req, result) {
             if (hasStatusChanged || wasPublishedUpdated) {
                 return INVALIDATE_ALL;
             } else {
-                return '/' + config.routeKeywords.preview + '/' + post.uuid + '/';
+                return config.urlFor({relativeUrl: '/' + config.routeKeywords.preview + '/' + post.uuid + '/'});
             }
         }
     }
@@ -240,6 +249,13 @@ http = function http(apiMethod) {
             if (res.get('Content-Type') && res.get('Content-Type').indexOf('text/csv') === 0) {
                 return res.status(200).send(response);
             }
+
+            // CASE: api method response wants to handle the express response
+            // example: serve files (stream)
+            if (_.isFunction(response)) {
+                return response(req, res, next);
+            }
+
             // Send a properly formatting HTTP response containing the data with correct headers
             res.json(response || {});
         }).catch(function onAPIError(error) {
@@ -267,13 +283,13 @@ module.exports = {
     settings: settings,
     tags: tags,
     clients: clients,
-    themes: themes,
     users: users,
     slugs: slugs,
     subscribers: subscribers,
     authentication: authentication,
     uploads: uploads,
-    slack: slack
+    slack: slack,
+    themes: themes
 };
 
 /**
