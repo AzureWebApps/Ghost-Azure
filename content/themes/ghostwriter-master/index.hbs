@@ -1,0 +1,20 @@
+{{!< default}}
+
+<div id="latest-post" class="container">
+    {{#foreach posts}}
+        {{#if @first}}
+{{! No indention to prevent handlebars indenting <pre> tag content}}   
+{{> post-content}}
+        {{/if}}
+    {{/foreach}}
+</div>
+
+<div id="post-index" class="container">
+    <ol class="post-list">
+        {{> loop}}
+    </ol>
+
+    <div class="post-navigation">
+        {{pagination}}
+    </div>
+</div>
