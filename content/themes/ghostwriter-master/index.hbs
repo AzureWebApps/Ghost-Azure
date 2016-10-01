@@ -1,13 +1,6 @@
 {{!< default}}
 
-<div id="latest-post" class="container">
-    {{#foreach posts}}
-        {{#if @first}}
-{{! No indention to prevent handlebars indenting <pre> tag content}}   
-{{> post-content}}
-        {{/if}}
-    {{/foreach}}
-</div>
+<header class="main-header {{#if @blog.cover}}" style="background-image: url({{@blog.cover}}){{else}}no-cover{{/if}}">
 
 <div id="post-index" class="container">
     <ol class="post-list">
@@ -17,4 +10,13 @@
     <div class="post-navigation">
         {{pagination}}
     </div>
+</div>
+
+<div id="latest-post" class="container">
+    {{#foreach posts}}
+        {{#if @first}}
+{{! No indention to prevent handlebars indenting <pre> tag content}}   
+{{> post-content}}
+        {{/if}}
+    {{/foreach}}
 </div>

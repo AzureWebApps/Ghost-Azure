@@ -11,44 +11,35 @@
 
     <meta name="HandheldFriendly" content="True" />
     <meta name="MobileOptimized" content="320" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport", content="width=device-width,maximum-scale=1,initial-scale=1">
+    
+    <script src="https://use.typekit.net/vzc0ynf.js"></script>
+    <script>try{Typekit.load({ async: true });}catch(e){}</script>
 
     {{! Styles }}
-    <link rel="stylesheet" type="text/css" href="{{asset "css/normalize.css"}}" />
     <link rel="stylesheet" type="text/css" href="{{asset "css/nprogress.css"}}" />
     <link rel="stylesheet" type="text/css" href="{{asset "css/style.css"}}" />
-    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin,cyrillic-ext,latin-ext,cyrillic" />
-    <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="{{asset "css/overrides.css"}}" />
+    <link rel="stylesheet" type="text/css" href="http://franks-macbook-pro-3.local:5757/stylesheets/blog.css">
+    <link href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700" rel="stylesheet">
 
     {{! Ghost outputs important style and meta data with this tag }}
     {{ghost_head}}
 </head>
 <body class="{{body_class}}">
+    <nav id="blog"><section><img height="48px" src="http://cdn.centsfactory.com/main/images/icons/bcorp.png" class="bcorp"/><a id="logo" href="http://impact.centsfactory.com/">Purposeworks + Cents</a>
+      <div class="links-container"><div style="opacity:0"><span id="dropdown">POSTS<br/><a href="http://intelligence.centsfactory.com/">BLOG</a><a href="http://intelligence.centsfactory.com/">INTERACTIVE</a></div></span><span><a href="http://impact.centsfactory.com/">TEAM</a></span><span><a id="open" href="#" style="color:white">GET IN TOUCH</a></span></div>
+    </section></nav>
 
-    <div id="wrapper">
+    <div id="wrapper" class="impactory-blog">
         <header class="site-header">
             <div class="container">
-                <div class="site-title-wrapper">
-                    {{#if @blog.logo}}
-                        <a class="site-logo js-ajax-link" title="{{@blog.title}}" href="{{@blog.url}}"><img src="{{@blog.logo}}" alt="{{@blog.title}}" /></a>
-                    {{else}}
-                        <h1 class="site-title"><a class="js-ajax-link" title="{{@blog.title}}" href="{{@blog.url}}">{{@blog.title}}</a></h1>
-
-                        <a class="button-square" href="{{@blog.url}}/rss"><i class="fa fa-rss"></i></a>
-                    {{/if}}
-                </div>
-
                 <ul class="site-nav">
-                    <li class="site-nav-item"><a class="js-ajax-link" title="{{@blog.title}}" href="{{@blog.url}}">Latest Post</a></li>
-                    <li class="site-nav-item"><a class="js-ajax-link js-show-index" title="{{@blog.title}}" href="{{@blog.url}}">Browse Posts</a></li>
-
-                    {{navigation}}
-
-                    {{#if @blog.logo}}
-                        <li class="site-nav-item"><a href="{{@blog.url}}/rss">RSS</a></li>
-                    {{/if}}
+                    <button class="button"><li class="site-nav-item"><a class="js-ajax-link js-show-index" title="{{@blog.title}}" href="{{@blog.url}}">Latest Post</a></li></button>
+                   <button class="button browse"><li class="site-nav-item"><a class="js-ajax-link" title="{{@blog.title}}" href="{{@blog.url}}">Browse All</a></li></button>
                 </ul>
             </div>
+            {{navigation}}
         </header>
     
         <div id="ajax-container">
@@ -56,7 +47,7 @@
         </div>
     </div>
 
-    <footer class="footer">
+<!--     <footer class="footer">
         <div class="container">
             <div class="site-title-wrapper">
                 <h1 class="site-title"><a class="js-ajax-link" title="{{@blog.title}}" href="{{@blog.url}}">{{@blog.title}}</a></h1>
@@ -66,7 +57,7 @@
 
             <p class="footer-copyright">&copy; {{date format="YYYY"}} / Published with <a href="https://ghost.org">Ghost</a> / <a href="https://github.com/roryg/ghostwriter">Ghostwriter theme</a> By <a href="http://jollygoodthemes.com">JollyGoodThemes</a></p>
         </div>
-    </footer>
+    </footer> -->
 
     {{! Ghost outputs important scripts and data with this tag }}
     {{ghost_foot}}
@@ -76,6 +67,7 @@
         document.write('<script type="text/javascript" src="{{asset "js/jquery-1.11.3.min.js"}}"></'+'script>');
     }
     </script>
+
 
     <script type="text/javascript" src="{{asset "js/jquery.history.js"}}"></script>
     <script type="text/javascript" src="{{asset "js/nprogress.js"}}"></script>

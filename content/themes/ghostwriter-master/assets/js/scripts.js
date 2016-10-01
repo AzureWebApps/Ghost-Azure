@@ -62,10 +62,10 @@ jQuery(function($) {
                 $postIndex = $newContent.filter('#post-index');
 
                 if (showIndex === true) {
-                    $latestPost.hide();
-                } else {
-                    $latestPost.show();
                     $postIndex.hide();
+                } else {
+                    $postIndex.show();
+                    $latestPost.hide();
                 }
 
                 // Re run fitvid.js

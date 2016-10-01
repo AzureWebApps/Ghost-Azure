@@ -1,3 +1,9 @@
-{{#foreach navigation}}
-    <li class="site-nav-item"><a class="js-ajax-link" title="{{label}} | {{@blog.title}}" href="{{url absolute="true"}}">{{label}}</a></li>
-{{/foreach}}
+<section style="display:none">
+<ul class="nav">
+    <!-- Loop through the navigation items -->
+    {{#foreach navigation}}
+    <li class="nav-{{slug}}{{#if current}} nav-current{{/if}}"><a href="{{url absolute="true"}}">{{label}}</a></li>
+    {{/foreach}}
+    <!-- End the loop -->
+</ul>
+</section>

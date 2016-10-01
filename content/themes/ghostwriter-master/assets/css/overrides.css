@@ -1,0 +1,64 @@
+nav#blog {
+  background: #333;
+}
+.impactory-blog .post-container,
+.impactory-blog .post-content {
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.impactory-blog .site-header {
+  padding-top: 80px;
+}
+.impactory-blog ul.site-nav {
+  width: 100%;
+  position: relative;
+  z-index: 100;
+  height: 36px;
+  margin-top: 0px;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+}
+.impactory-blog body {
+  font-family: "Gotham";
+  font-size: 18px;
+  line-height: 1.5;
+  color: #333;
+}
+.impactory-blog h1,
+.impactory-blog h2,
+.impactory-blog h3,
+.impactory-blog h4,
+.impactory-blog h5,
+.impactory-blog h6 {
+  color: #222;
+  font-family: 'Gotham';
+}
+.impactory-blog h2 {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  line-height: 30px;
+  font-size: 24px;
+  color: #000;
+}
+.impactory-blog p {
+  line-height: 30px;
+  font-size: 16px;
+  margin-bottom: 28px;
+  margin-top: 0px;
+  font-family: "Libre Baskerville";
+}
+.impactory-blog h1.post-title {
+  font-size: 44px;
+  text-transform: none;
+  font-family: 'Raleway';
+  letter-spacing: 0;
+}
+.impactory-blog .post-date,
+.impactory-blog .blog-description {
+  font-family: "Gotham";
+  font-weight: 400;
+}
+.impactory-blog .post-header {
+  padding-bottom: 60px;
+}
