@@ -110,9 +110,9 @@ config = {
         storage: {
             active: 'ghost-azurestorage',
             'ghost-azurestorage': {
-                connectionString: 'https://impactory.blob.core.windows.net/',
+                connectionString: 'DefaultEndpointsProtocol=http;AccountName=impactory;AccountKey=1xWXD9WaJS+SMC50D7GLGeAoxuVATeBFEwalzyJwm2c+b1jmPkBsiBH3s3EWDTOeZHF1eyJn/d4wGn1mSdf37A==',
                 container: 'main',
-                cdnUrl: "https://impactory.blob.core.windows.net",
+                cdnUrl: "https://impactory.azureedge.net",
                 useHttps : "UseHttpsInEndpoint" //Optional: CDN protocol. Defaults to http if omitted. Set to "true", to enable.
             }
         },
