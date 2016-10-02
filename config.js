@@ -80,7 +80,7 @@ config = {
     // When running Ghost in the wild, use the production environment
     // Configure your URL and mail settings here
     production: {
-        url: websiteUrl,
+        url: 'http://intelligence.centsfactory.com',
         urlSSL: websiteUrlSSL,
 
         // Visit http://support.ghost.org/mail for instructions
@@ -107,7 +107,7 @@ config = {
             // Port to be passed to node's `net.Server#listen()`, for iisnode set this to `process.env.PORT`
             port: process.env.PORT
         },
-        forceAdminSSL: true
+        forceAdminSSL: false
     },
 
     // **Developers only need to edit below here**
