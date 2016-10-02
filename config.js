@@ -107,6 +107,15 @@ config = {
             // Port to be passed to node's `net.Server#listen()`, for iisnode set this to `process.env.PORT`
             port: process.env.PORT
         },
+        storage: {
+            active: 'ghost-azurestorage',
+            'ghost-azurestorage': {
+                connectionString: 'https://impactory.blob.core.windows.net/',
+                container: 'main',
+                cdnUrl: "https://impactory.blob.core.windows.net",
+                useHttps : "UseHttpsInEndpoint" //Optional: CDN protocol. Defaults to http if omitted. Set to "true", to enable.
+            }
+        },
         forceAdminSSL: false
     },
 
