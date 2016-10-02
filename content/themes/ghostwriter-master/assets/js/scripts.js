@@ -141,5 +141,8 @@ jQuery(function($) {
             }
         }
     });
+    $('button.button').click(function(){
+        $(this).addClass('highlighted').siblings().removeClass('highlighted');
+    });
 
 });

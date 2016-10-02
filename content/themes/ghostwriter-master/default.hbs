@@ -19,7 +19,6 @@
     {{! Styles }}
     <link rel="stylesheet" type="text/css" href="{{asset "css/nprogress.css"}}" />
     <link rel="stylesheet" type="text/css" href="{{asset "css/style.css"}}" />
-    <link rel="stylesheet" type="text/css" href="{{asset "css/overrides.css"}}" />
     <link rel="stylesheet" type="text/css" href="{{asset "css/blog.css"}}">
     <link href="https://fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700" rel="stylesheet">
 
@@ -35,8 +34,8 @@
         <header class="site-header">
             <div class="container">
                 <ul class="site-nav">
-                    <button class="button"><li class="site-nav-item"><a class="js-ajax-link js-show-index" title="{{@blog.title}}" href="{{@blog.url}}">Latest Post</a></li></button>
-                   <button class="button browse"><li class="site-nav-item"><a class="js-ajax-link" title="{{@blog.title}}" href="{{@blog.url}}">Browse All</a></li></button>
+                   <button class="button browse"><li class="site-nav-item"><a class="js-ajax-link" title="{{@blog.title}}" href="{{@blog.url}}">Latest Post</a></li></button>
+                    <button class="button"><li class="site-nav-item"><a class="js-ajax-link js-show-index" title="{{@blog.title}}" href="{{@blog.url}}">Browse</a></li></button>
                 </ul>
             </div>
             {{navigation}}
