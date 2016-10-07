@@ -107,13 +107,13 @@ config = {
             // Port to be passed to node's `net.Server#listen()`, for iisnode set this to `process.env.PORT`
             port: process.env.PORT
         },
-        storage: {
-            active: 'ghost-azurestorage',
-            'ghost-azurestorage': {
-                connectionString: 'DefaultEndpointsProtocol=http;AccountName=impactory;AccountKey=1xWXD9WaJS+SMC50D7GLGeAoxuVATeBFEwalzyJwm2c+b1jmPkBsiBH3s3EWDTOeZHF1eyJn/d4wGn1mSdf37A==',
-                container: 'main',
-                cdnUrl: "https://impactory.azureedge.net",
-                useHttps : "UseHttpsInEndpoint" //Optional: CDN protocol. Defaults to http if omitted. Set to "true", to enable.
+        storage :{
+            active: 'ghost-azure-store',
+ 
+            'ghost-azure-store': {
+                key: "1xWXD9WaJS+SMC50D7GLGeAoxuVATeBFEwalzyJwm2c+b1jmPkBsiBH3s3EWDTOeZHF1eyJn/d4wGn1mSdf37A==",
+                storage: "impactory",
+                container: "main"
             }
         },
         forceAdminSSL: false

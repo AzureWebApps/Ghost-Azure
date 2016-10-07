@@ -1,0 +1,16 @@
+{{!< default}} 
+<header>
+
+    {{navigation}}
+
+    <section class="banner" role="banner">
+        {{#if @blog.logo}}
+        <img src="{{@blog.logo}}" alt="Blog Logo">
+        {{else}}
+        <h1><a href="{{@blog.url}}">{{@blog.title}}</a></h1>
+        {{/if}}
+        <h2>{{@blog.description}}</h2>
+    </section>
+</header>
+
+{{> loop}}
