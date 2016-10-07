@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name=viewport content="width=device-width, initial-scale=1">
+
+    <title>{{meta_title}}</title>
+    <meta name="description" content="{{meta_description}}">
+
+    <link rel="stylesheet" href="{{asset "css/blog.css"}}">
+    <link rel="stylesheet" href="{{asset "css/style.css"}}">
+    <link rel="stylesheet" href="{{asset "css/subbscribe.css"}}">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700">
+
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{{@blog.logo}}">
+    <link rel="shortcut icon" href="{{@blog.logo}}"> {{#is "home"}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="{{asset "js/jquery.ghostHunter.min.js"}}"></script>
+    <style>
+        header {
+            margin: 20px auto;
+            border-radius: 2px;
+            padding-bottom: 20px;
+            width: 80%;
+            background: url({{@blog.cover}});
+            background-size: cover;
+            height: auto;
+            text-align: center;
+        }  
+        header #nav li a {
+            color: #fff;
+        }
+        @media screen and (max-width:600px) {
+            header {
+                width: 95%;
+            }
+        }
+    </style>
+    {{else}}
+    <style>
+        header {
+            width: 100%;
+            text-align: center;
+            height: 50px;
+        }
+        header #nav li a,{
+            color: #7bd0c1;
+        }
+        header #nav li a:hover {
+            border: 2px solid #7bd0c1;
+            border-radius: 5px;
+            color: #7bd0c1;
+        }
+    {{/is}}
+    </style>
+    
+    {{ghost_head}}
+
+</head>
+
+<body>
+ <form>
+        <input id="search-field" />
+        <input type="submit" value="search">
+        <input type="button" value="clear" onclick="clearResults();" />
+      </form>
+
+      <hr />
+        
+      <section id="results"></section>
+
+      <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+      <script src="../jquery.ghostHunter.js"></script>
+
+      <script>
+        var searchField = $("#search-field").ghostHunter({
+                            results     : "#results",
+                            rss         : "rss.xml",
+                            //Enable the "search as you type" by uncommenting the following line
+                            //onKeyUp   : true
+                          });
+        function clearResults() {
+          searchField.clear();
+        }
+      </script>
+    <nav id="blog"><section><img height="48px" src="http://cdn.centsfactory.com/main/images/icons/bcorp.png" class="bcorp"/><a id="logo" href="http://impact.centsfactory.com/">Purposeworks + Cents</a>
+      <div class="links-container"><div style="opacity:0"><span id="dropdown">POSTS<br/><a href="http://intelligence.centsfactory.com/">BLOG</a><a href="http://intelligence.centsfactory.com/">INTERACTIVE</a></div></span><span><a href="http://impact.centsfactory.com/">TEAM</a></span><span><a id="open" href="#" style="color:white">GET IN TOUCH</a></span></div>
+    </section></nav>
+    {{{body}}}
+
+    <footer>
+        Theme by <a href="https://github.com/Dennis-Mayk/Practice/">Dennis</a> // Logo by <a href="https://thenounproject.com/mockturtle/">Sergey Demushkin</a>
+    </footer>
+
+    {{ghost_footer}}
+
+    <script src="{{asset "js/subbscribe.min.js"}}"></script>
+    <script src="{{asset "js/infinitescroll.min.js"}}"></script>
+    <script src="{{asset "js/index.js"}}"></script>
+
+</body>
+
+</html>

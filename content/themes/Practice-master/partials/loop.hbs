@@ -1,0 +1,28 @@
+    <div class="index-wrapper">
+
+        <section id="timeline">
+            {{#foreach posts}}
+            <article class="article">
+
+                <div class="inner">
+                    <span class="date">
+                    <span class="day">{{date format="DD"}}</span>
+                    <span class="month">{{date format="MMM"}}</span>
+                    <span class="year">{{date format="YYYY"}}</span>
+                    </span>
+                    <a href="{{url}}">
+                        {{#if image}}
+                        <img src="{{image}}" />
+                        {{/if}}    
+                        <h2>{{{title}}}</h2>
+                        <p>{{excerpt words="30"}}...</p>
+                    </a>
+                </div>
+
+            </article>
+            {{/foreach}}
+        </section>
+
+    </div>
+
+{{pagination}}

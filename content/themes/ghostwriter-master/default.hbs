@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {{! Document Settings }}
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    {{! Page Meta }}
+    <title>{{meta_title}}</title>
+    <meta name="description" content="{{meta_description}}" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport", content="width=device-width,maximum-scale=1,initial-scale=1">
+    
+    <script src="https://use.typekit.net/vzc0ynf.js"></script>
+    <script>try{Typekit.load({ async: true });}catch(e){}</script>
+
+    {{! Styles }}
+    <link rel="stylesheet" type="text/css" href="{{asset "css/nprogress.css"}}" />
+    <link rel="stylesheet" type="text/css" href="{{asset "css/style.css"}}" />
+    <link rel="stylesheet" type="text/css" href="{{asset "css/blog.css"}}">
+    <link rel="stylesheet" type="text/css" href="https://cloud.typography.com/6136334/6384772/css/fonts.css" />
+    <link href="https://fonts.googleapis.com/css?family=Raleway:500,400i,700" rel="stylesheet">
+
+    {{! Ghost outputs important style and meta data with this tag }}
+    {{ghost_head}}
+</head>
+<body class="{{body_class}}">
+    <nav id="blog"><section><img height="48px" src="http://cdn.centsfactory.com/main/images/icons/bcorp.png" class="bcorp"/><a id="logo" href="http://impact.centsfactory.com/">Purposeworks + Cents</a>
+      <div class="links-container"><div style="opacity:0"><span id="dropdown">POSTS<br/><a href="http://intelligence.centsfactory.com/">BLOG</a><a href="http://intelligence.centsfactory.com/">INTERACTIVE</a></div></span><span><a href="http://impact.centsfactory.com/">TEAM</a></span><span><a id="open" href="#" style="color:white">GET IN TOUCH</a></span></div>
+    </section></nav>
+
+    <div id="wrapper" class="impactory-blog">
+        <header class="site-header">
+            <div class="container">
+                <ul class="site-nav">
+                   <button class="button browse"><li class="site-nav-item"><a class="js-ajax-link" title="{{@blog.title}}" href="{{@blog.url}}">Latest Post</a></li></button>
+                    <button class="button"><li class="site-nav-item"><a class="js-ajax-link js-show-index" title="{{@blog.title}}" href="{{@blog.url}}">Browse</a></li></button>
+                </ul>
+            </div>
+            {{navigation}}
+        </header>
+    
+        <div id="ajax-container">
+            {{{body}}}
+        </div>
+    </div>
+
+<!--     <footer class="footer">
+        <div class="container">
+            <div class="site-title-wrapper">
+                <h1 class="site-title"><a class="js-ajax-link" title="{{@blog.title}}" href="{{@blog.url}}">{{@blog.title}}</a></h1>
+
+                <a class="button-square button-jump-top js-jump-top" href="#"><i class="fa fa-angle-up"></i></a>
+            </div>
+
+            <p class="footer-copyright">&copy; {{date format="YYYY"}} / Published with <a href="https://ghost.org">Ghost</a> / <a href="https://github.com/roryg/ghostwriter">Ghostwriter theme</a> By <a href="http://jollygoodthemes.com">JollyGoodThemes</a></p>
+        </div>
+    </footer> -->
+
+    {{! Ghost outputs important scripts and data with this tag }}
+    {{ghost_foot}}
+
+    <script type="text/javascript">  
+    if (typeof jQuery == 'undefined') {
+        document.write('<script type="text/javascript" src="{{asset "js/jquery-1.11.3.min.js"}}"></'+'script>');
+    }
+    </script>
+
+
+    <script type="text/javascript" src="{{asset "js/jquery.history.js"}}"></script>
+    <script type="text/javascript" src="{{asset "js/nprogress.js"}}"></script>
+    <script type="text/javascript" src="{{asset "js/jquery.fitvids.js"}}"></script>
+    <script type="text/javascript" src="{{asset "js/scripts.js"}}"></script>
+
+</body>
+</html>

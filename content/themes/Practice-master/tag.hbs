@@ -1,0 +1,39 @@
+{{!< default}} 
+<header>
+
+        {{navigation}}
+
+    <section class="banner" role="banner">
+        <h1><a href="{{@blog.url}}">{{@blog.title}}</a></h1>
+        {{#tag}}
+        <h2>tag: {{name}}</h2>
+        {{/tag}}
+    </section>
+ </header>
+
+    <div class="index-wrapper">
+
+        <section id="timeline">
+            {{#foreach posts}}
+            <article>
+
+                <div class="inner">
+                    <span class="date">
+                    <span class="day">{{date format="DD"}}</span>
+                    <span class="month">{{date format="MMM"}}</span>
+                    <span class="year">{{date format="YYYY"}}</span>
+                    </span>
+                    <a href="{{url}}">
+
+                        <h2>{{{title}}}</h2>
+                        <p>{{excerpt words="30"}}...</p>
+                    </a>
+                </div>
+
+            </article>
+            {{/foreach}}
+        </section>
+
+        {{pagination}}
+
+    </div>

@@ -1,0 +1,13 @@
+{{!< default}}
+
+<div class="container">
+    <h1 class="page-title">Posts tagged: {{tag.name}}</h1>
+
+    <ol class="post-list">
+        {{> loop}}
+    </ol>
+
+    <div class="post-navigation">
+        {{pagination}}
+    </div>
+</div>

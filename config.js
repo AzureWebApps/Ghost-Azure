@@ -3,7 +3,7 @@
 // Documentation can be found at http://support.ghost.org/config/
 
 var path = require('path'),
-    websiteUrl = process.env.websiteUrl,
+    websiteUrl = process.env.localhost,
     websiteUrlSSL = process.env.websiteUrlSSL,
     config;
 
@@ -29,20 +29,31 @@ config = {
     // ### Development **(default)**
     development: {
         // The url to use when providing links to the site, E.g. in RSS and email.
-        url: websiteUrl,
+        // Change this to your Ghost blog's published URL.
+        url: 'http://localhost:2368',
 
+        // Example refferer policy
+        // Visit https://www.w3.org/TR/referrer-policy/ for instructions
+        // default 'origin-when-cross-origin',
+        // referrerPolicy: 'origin-when-cross-origin',
+
+        // Example mail config
         // Visit http://support.ghost.org/mail for instructions
-         mail: {
-             transport: 'SMTP',
-             options: {
-                 service: process.env.emailService,
-                 auth: {
-                     user: process.env.emailUsername, // mailgun username
-                     pass: process.env.emailPassword  // mailgun password
-                 }
-             }
-         },
+        // ```
+        //  mail: {
+        //      transport: 'SMTP',
+        //      options: {
+        //          service: 'Mailgun',
+        //          auth: {
+        //              user: '', // mailgun username
+        //              pass: ''  // mailgun password
+        //          }
+        //      }
+        //  },
+        // ```
 
+        // #### Database
+        // Ghost supports sqlite3 (default), MySQL & PostgreSQL
         database: {
             client: 'sqlite3',
             connection: {
@@ -50,23 +61,26 @@ config = {
             },
             debug: false
         },
+        // #### Server
+        // Can be host & port (default), or socket
         server: {
             // Host to be passed to node's `net.Server#listen()`
             host: '127.0.0.1',
             // Port to be passed to node's `net.Server#listen()`, for iisnode set this to `process.env.PORT`
-            port: process.env.PORT
+            port: '2368'
         },
+        // #### Paths
+        // Specify where your content directory lives
         paths: {
             contentPath: path.join(__dirname, '/content/')
-        },
-        forceAdminSSL: false
+        }
     },
 
     // ### Production
     // When running Ghost in the wild, use the production environment
     // Configure your URL and mail settings here
     production: {
-        url: websiteUrl,
+        url: 'http://intelligence.centsfactory.com',
         urlSSL: websiteUrlSSL,
 
         // Visit http://support.ghost.org/mail for instructions
@@ -93,7 +107,16 @@ config = {
             // Port to be passed to node's `net.Server#listen()`, for iisnode set this to `process.env.PORT`
             port: process.env.PORT
         },
-        forceAdminSSL: true
+        storage :{
+            active: 'ghost-azure-store',
+ 
+            'ghost-azure-store': {
+                key: "1xWXD9WaJS+SMC50D7GLGeAoxuVATeBFEwalzyJwm2c+b1jmPkBsiBH3s3EWDTOeZHF1eyJn/d4wGn1mSdf37A==",
+                storage: "impactory",
+                container: "main"
+            }
+        },
+        forceAdminSSL: false
     },
 
     // **Developers only need to edit below here**
