@@ -1,14 +1,23 @@
 // # Update Database
 // Handles migrating a database between two different database versions
 var Promise = require('bluebird'),
+    _ = require('lodash'),
     backup = require('./backup'),
     fixtures = require('./fixtures'),
     errors = require('../../errors'),
     i18n = require('../../i18n'),
     db = require('../../data/db'),
-    sequence = require('../../utils/sequence'),
     versioning = require('../schema').versioning,
-
+    sequence = function sequence(tasks, modelOptions, logger) {
+        // utils/sequence.js does not offer an option to pass cloned arguments
+        return Promise.reduce(tasks, function (results, task) {
+            return task(_.cloneDeep(modelOptions), logger)
+                .then(function (result) {
+                    results.push(result);
+                    return results;
+                });
+        }, []);
+    },
     updateDatabaseSchema,
     migrateToDatabaseVersion,
     execute, logger, isDatabaseOutOfDate;
@@ -28,6 +37,7 @@ logger = {
  */
 updateDatabaseSchema = function (tasks, logger, modelOptions) {
     if (!tasks.length) {
+        logger.info('No database migration tasks found for this version');
         return Promise.resolve();
     }
 
@@ -45,9 +55,7 @@ migrateToDatabaseVersion = function migrateToDatabaseVersion(version, logger, mo
             var migrationTasks = versioning.getUpdateDatabaseTasks(version, logger),
                 fixturesTasks = versioning.getUpdateFixturesTasks(version, logger);
 
-            logger.info('###########');
             logger.info('Updating database to ' + version);
-            logger.info('###########\n');
 
             modelOptions.transacting = transaction;
 
@@ -63,7 +71,7 @@ migrateToDatabaseVersion = function migrateToDatabaseVersion(version, logger, mo
                     resolve();
                 })
                 .catch(function (err) {
-                    logger.warn('rolling back because of: ' + err.stack);
+                    logger.warn('rolling back because of an Error:\n' + err.message + '\n' + err.stack);
 
                     transaction.rollback();
                 });
@@ -98,6 +106,7 @@ execute = function execute(options) {
 
     return backup(logger)
         .then(function () {
+            logger.info('Migration required from ' + fromVersion + ' to ' + toVersion);
             return Promise.mapSeries(versionsToUpdate, function (versionToUpdate) {
                 return migrateToDatabaseVersion(versionToUpdate, logger, modelOptions);
             });

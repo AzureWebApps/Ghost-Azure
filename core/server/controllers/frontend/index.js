@@ -66,8 +66,8 @@ frontendControllers = {
                 return next();
             }
 
-            // CASE: we only support /:slug format for pages
-            if (post.page && post.url !== req.path) {
+            // CASE: postlookup can detect options for example /edit, unknown options get ignored and end in 404
+            if (lookup.isUnknownOption) {
                 return next();
             }
 

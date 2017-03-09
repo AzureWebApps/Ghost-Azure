@@ -5,18 +5,18 @@
 // **Usage instructions:** can be found in the [Custom Tasks](#custom%20tasks) section or by running `grunt --help`.
 //
 // **Debug tip:** If you have any problems with any Grunt tasks, try running them with the `--verbose` command
-var _              = require('lodash'),
+
+// jshint unused: false
+var overrides      = require('./core/server/overrides'),
+    _              = require('lodash'),
     chalk          = require('chalk'),
     fs             = require('fs-extra'),
     path           = require('path'),
-    Promise        = require('bluebird'),
-    Git            = require('git-wrapper'),
 
     escapeChar     = process.platform.match(/^win/) ? '^' : '\\',
     cwd            = process.cwd().replace(/( |\(|\))/g, escapeChar + '$1'),
     buildDirectory = path.resolve(cwd, '.build'),
     distDirectory  = path.resolve(cwd, '.dist'),
-    emberPath      = path.resolve(cwd + '/core/client/node_modules/.bin/ember'),
 
     // ## Grunt configuration
 
@@ -67,13 +67,6 @@ var _              = require('lodash'),
                     tasks:  ['express:dev'],
                     options: {
                         spawn: false
-                    }
-                },
-                csscomb: {
-                    files: ['core/client/app/styles/**/*.css'],
-                    tasks: ['shell:csscombfix'],
-                    options: {
-                        livereload: true
                     }
                 }
             },
@@ -142,7 +135,7 @@ var _              = require('lodash'),
                 options: {
                     ui: 'bdd',
                     reporter: grunt.option('reporter') || 'spec',
-                    timeout: '15000',
+                    timeout: '30000',
                     save: grunt.option('reporter-output'),
                     require: ['core/server/overrides']
                 },
@@ -215,47 +208,16 @@ var _              = require('lodash'),
                 }
             },
 
-            // ### grunt-bg-shell
-            // Used to run ember-cli watch in the background
             bgShell: {
-                ember: {
-                    cmd: emberPath + ' build --watch',
-                    execOpts: {
-                        cwd: path.resolve(cwd + '/core/client/')
-                    },
-                    bg: true,
-                    stdout: function (out) {
-                        grunt.log.writeln(chalk.cyan('Ember-cli::') + out);
-                    },
-                    stderror: function (error) {
-                        grunt.log.error(chalk.red('Ember-cli::' + error));
-                    }
+                client: {
+                    cmd: 'grunt subgrunt:watch',
+                    bg: true
                 }
             },
+
             // ### grunt-shell
             // Command line tools where it's easier to run a command directly than configure a grunt plugin
             shell: {
-                ember: {
-                    command: function (mode) {
-                        switch (mode) {
-                            case 'prod':
-                                return emberPath + ' build --environment=production --silent';
-
-                            case 'dev':
-                                return emberPath + ' build';
-
-                            case 'test':
-                                return emberPath + ' test --silent';
-                        }
-                    },
-                    options: {
-                        execOptions: {
-                            cwd: path.resolve(process.cwd() + '/core/client/'),
-                            stdout: false
-                        }
-                    }
-                },
-
                 shrinkwrap: {
                     command: 'npm shrinkwrap'
                 },
@@ -266,10 +228,6 @@ var _              = require('lodash'),
 
                 dedupe: {
                     command: 'npm dedupe'
-                },
-
-                csscombfix: {
-                    command: path.resolve(cwd + '/node_modules/.bin/csscomb -c core/client/app/styles/csscomb.json -v core/client/app/styles')
                 }
             },
 
@@ -350,12 +308,36 @@ var _              = require('lodash'),
             // ### grunt-subgrunt
             // Run grunt tasks in submodule Gruntfiles
             subgrunt: {
+                options: {
+                    npmInstall: false
+                },
                 init: {
-                    'core/client': 'init'
+                    options: {
+                        npmInstall: true
+                    },
+                    projects: {
+                        'core/client': 'init'
+                    }
+                },
+
+                dev: {
+                    'core/client': 'shell:ember:dev'
+                },
+
+                prod: {
+                    'core/client': 'shell:ember:prod'
+                },
+
+                watch: {
+                    'core/client': ['bgShell:ember', 'watch']
                 },
 
                 lint: {
                     'core/client': 'lint'
+                },
+
+                test: {
+                    'core/client': 'shell:test'
                 }
             }
         };
@@ -538,7 +520,7 @@ var _              = require('lodash'),
             ['test-routes', 'test-module', 'test-unit', 'test-integration']);
 
         grunt.registerTask('test-client', 'Run client tests',
-            ['test-ember']);
+            ['subgrunt:test']);
 
         // ### Lint
         //
@@ -634,12 +616,6 @@ var _              = require('lodash'),
             ['test-setup', 'mochacli:module']
         );
 
-        // ### Ember unit tests *(sub task)*
-        // `grunt test-ember` will run just the ember unit tests
-        grunt.registerTask('test-ember', 'Run the ember unit tests',
-            ['test-setup', 'shell:ember:test']
-        );
-
         // ### Coverage
         // `grunt coverage` will generate a report for the Unit Tests.
         //
@@ -705,19 +681,30 @@ var _              = require('lodash'),
         grunt.registerTask('init', 'Prepare the project for development',
             ['update_submodules', 'subgrunt:init', 'clean:tmp', 'default']);
 
+        // ### Build assets
+        // `grunt build` - will build client assets (without updating the submodule)
+        //
+        // This task is identical to `grunt init`, except it does not build client dependencies
+        grunt.registerTask('build', 'Build client app',
+            ['subgrunt:init', 'clean:tmp', 'default']);
+
         // ### Default asset build
         // `grunt` - default grunt task
         //
         // Build assets and dev version of the admin app.
         grunt.registerTask('default', 'Build JS & templates for development',
-            ['shell:ember:dev']);
+            ['subgrunt:dev']);
 
         // ### Production assets
         // `grunt prod` - will build the minified assets used in production.
         //
         // It is otherwise the same as running `grunt`, but is only used when running Ghost in the `production` env.
         grunt.registerTask('prod', 'Build JS & templates for production',
-            ['shell:ember:prod', 'uglify:prod', 'master-warn']);
+            ['subgrunt:prod', 'uglify:prod', 'master-warn']);
+
+        grunt.registerTask('deps', 'Prepare dependencies',
+            ['shell:dedupe', 'shell:prune', 'shell:shrinkwrap']
+        );
 
         // ### Live reload
         // `grunt dev` - build assets on the fly whilst developing
@@ -731,79 +718,7 @@ var _              = require('lodash'),
         //
         // Note that the current implementation of watch only works with casper, not other themes.
         grunt.registerTask('dev', 'Dev Mode; watch files and restart server on changes',
-           ['bgShell:ember', 'express:dev', 'watch']);
-
-        // ### Contributors
-        // `grunt contributors:<tag-name>` - generate a comma-separated list of contributors for a Ghost release.
-        //
-        // You must supply a tag name to us
-        //
-        grunt.registerTask('contributors', 'Generate a list of contributors for a release', function () {
-            var getContribList = require('gh-contrib-list'),
-                oauthKey = process.env.GITHUB_OAUTH_KEY,
-                thisGit = new Git(),
-                clientGit = new Git({'git-dir': path.resolve(cwd + '/core/client/.git')}),
-                done = this.async();
-
-            function mergeContribs(first, second) {
-                _.each(second, function (contributor) {
-                    var contributorInFirst = _.find(first, ['id', contributor.id]);
-
-                    if (contributorInFirst) {
-                        contributorInFirst.commitCount += contributor.commitCount;
-                    } else {
-                        first.push(contributor);
-                    }
-                });
-
-                return _.orderBy(first, ['commitCount'], ['desc']);
-            }
-
-            if (!this.args) {
-                grunt.log.error('You must supply a tag name. Please run like this: `grunt contributors:<tag-name>`');
-            }
-
-            return Promise.props({
-                ghost: Promise.promisify(thisGit.exec, {context: thisGit})('rev-list', {n: 1}, this.args),
-                admin: Promise.promisify(clientGit.exec, {context: clientGit})('rev-list', {n: 1}, this.args)
-            }).then(function (props) {
-                return Promise.join(
-                    getContribList({
-                        user: 'tryghost',
-                        repo: 'ghost',
-                        oauthKey: oauthKey,
-                        commit: props.ghost.trim(),
-                        removeGreenkeeper: true,
-                        retry: true
-                    }),
-                    getContribList({
-                        user: 'tryghost',
-                        repo: 'ghost-admin',
-                        oauthKey: oauthKey,
-                        commit: props.admin.trim(),
-                        removeGreenkeeper: true,
-                        retry: true
-                    })
-                );
-            }).then(function (results) {
-                var contributors = mergeContribs(results[0], results[1]);
-
-                grunt.log.writeln(_.map(contributors, 'name').join(', '));
-                done();
-            }).catch(function (error) {
-                grunt.log.error(error);
-
-                if (error.http_status) {
-                    grunt.log.writeln('GitHub API request returned status: ' + error.http_status);
-                }
-
-                if (error.ratelimit_limit) {
-                    grunt.log.writeln('Rate limit data: limit: %d, remaining: %d, reset: %s', error.ratelimit_limit, error.ratelimit_remaining, require('moment').unix(error.ratelimit_reset).fromNow());
-                }
-
-                done(false);
-            });
-        });
+           ['bgShell:client', 'express:dev', 'watch']);
 
         // ### Release
         // Run `grunt release` to create a Ghost release zip file.
@@ -829,7 +744,7 @@ var _              = require('lodash'),
                     dest: '<%= paths.releaseBuild %>/'
                 });
 
-                grunt.task.run(['init', 'prod', 'clean:release',  'shell:dedupe', 'shell:prune', 'shell:shrinkwrap', 'copy:release', 'compress:release']);
+                grunt.task.run(['init', 'prod', 'clean:release', 'deps', 'copy:release', 'compress:release']);
             }
         );
     };

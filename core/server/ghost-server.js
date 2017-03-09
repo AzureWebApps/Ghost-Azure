@@ -4,8 +4,10 @@ var Promise = require('bluebird'),
     chalk = require('chalk'),
     fs = require('fs'),
     errors = require('./errors'),
+    events = require('./events'),
     config = require('./config'),
-    i18n   = require('./i18n');
+    i18n   = require('./i18n'),
+    moment = require('moment');
 
 /**
  * ## GhostServer
@@ -75,6 +77,7 @@ GhostServer.prototype.start = function (externalApp) {
         });
         self.httpServer.on('connection', self.connection.bind(self));
         self.httpServer.on('listening', function () {
+            events.emit('server:start');
             self.logStartMessages();
             resolve(self);
         });
@@ -111,7 +114,9 @@ GhostServer.prototype.stop = function () {
  * @returns {Promise} Resolves once Ghost has restarted
  */
 GhostServer.prototype.restart = function () {
-    return this.stop().then(this.start.bind(this));
+    return this.stop().then(function (ghostServer) {
+        return ghostServer.start();
+    });
 };
 
 /**
@@ -190,8 +195,7 @@ GhostServer.prototype.logStartMessages = function () {
         } else {
             console.log(
                 i18n.t('notices.httpServer.ghostWasRunningFor'),
-                Math.round(process.uptime()),
-                i18n.t('common.time.seconds')
+                moment.duration(process.uptime(), 'seconds').humanize()
             );
         }
         process.exit(0);

@@ -239,8 +239,8 @@ subscribers = {
 
         // Export data, otherwise send error 500
         function exportSubscribers() {
-            return dataProvider.Subscriber.findPage(options).then(function (data) {
-                return formatCSV(data.subscribers);
+            return dataProvider.Subscriber.findAll(options).then(function (data) {
+                return formatCSV(data.toJSON(options));
             }).catch(function (error) {
                 return Promise.reject(new errors.InternalServerError(error.message || error));
             });
@@ -265,20 +265,6 @@ subscribers = {
     importCSV: function (options) {
         var tasks = [];
         options = options || {};
-
-        function validate(options) {
-            options.name = options.originalname;
-            options.type = options.mimetype;
-
-            // Check if a file was provided
-            if (!utils.checkFileExists(options)) {
-                return Promise.reject(new errors.ValidationError(i18n.t('errors.api.db.selectFileToImport')));
-            }
-
-            // TODO: check for valid entries
-
-            return options;
-        }
 
         function importCSV(options) {
             var filePath = options.path,
@@ -323,7 +309,6 @@ subscribers = {
         }
 
         tasks = [
-            validate,
             utils.handlePermissions(docName, 'add'),
             importCSV
         ];
