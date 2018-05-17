@@ -7,8 +7,7 @@
 {{#foreach posts}}
 <article class="{{post_class}}">
     {{#if image}} 
-        <section class="post-image" style="background-image: url({{image}})">
-        </section>
+        <a href="{{url}}" class="post-image" style="background-image: url({{image}})"></a>
     {{/if}}
     <header class="post-header">
         <h2 class="post-title"><a href="{{url}}">{{{title}}}</a></h2>
