@@ -33,15 +33,15 @@ config = {
 
         // Visit http://support.ghost.org/mail for instructions
          mail: {
-             transport: 'SMTP',
-             options: {
-                 service: process.env.emailService,
-                 auth: {
-                     user: process.env.emailUsername, // mailgun username
-                     pass: process.env.emailPassword  // mailgun password
-                 }
-             }
-         },
+            transport: 'SMTP',
+                options: {
+                    service: 'Mailgun',
+                    auth: {
+                        user: 'postmaster@eventicious.com',
+                        pass: '74jvnk2h4kv6'
+                    }
+                }
+        },
 
         database: {
             client: 'sqlite3',
@@ -70,15 +70,15 @@ config = {
         urlSSL: websiteUrlSSL,
 
         // Visit http://support.ghost.org/mail for instructions
-        mail: {
-         transport: 'SMTP',
-         options: {
-             service: process.env.emailService,
-             auth: {
-                 user: process.env.emailUsername, // mailgun username
-                 pass: process.env.emailPassword  // mailgun password
-             }
-         }
+         mail: {
+            transport: 'SMTP',
+                options: {
+                    service: 'Mailgun',
+                    auth: {
+                        user: 'postmaster@eventicious.com',
+                        pass: '74jvnk2h4kv6'
+                    }
+                }
         },
         database: {
             client: 'sqlite3',
